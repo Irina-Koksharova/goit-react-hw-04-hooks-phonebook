@@ -2,13 +2,13 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import s from './ContactsForm.module.css';
 
-function ContactsForm({ onSubmit, onSubmitError }) {
+const ContactsForm = ({ onSubmit, onSubmitError }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
   const handleChangeForm = e => {
-    const { value } = e.target;
-    switch (e.target.name) {
+    const { name, value } = e.target;
+    switch (name) {
       case 'name':
         setName(value);
         break;
@@ -72,10 +72,11 @@ function ContactsForm({ onSubmit, onSubmitError }) {
       </button>
     </form>
   );
-}
+};
 
 ContactsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  onSubmitError: PropTypes.func.isRequired,
 };
 
 export default ContactsForm;
