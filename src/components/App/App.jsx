@@ -11,7 +11,7 @@ import ContactsList from '../ContactsList';
 import initialContacts from '../../initialContacts.json';
 
 const App = () => {
-  const [contacts, setContacts] = useState(
+  const [contacts, setContacts] = useState(() =>
     JSON.parse(localStorage.getItem('contacts') ?? initialContacts),
   );
   const [filter, setFilter] = useState('');
