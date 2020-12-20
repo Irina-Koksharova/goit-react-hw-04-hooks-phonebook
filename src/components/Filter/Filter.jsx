@@ -19,6 +19,7 @@ const Filter = ({ value, onFilter }) => {
         id="input"
         value={value}
         onChange={onFilter}
+        autoComplete="off"
       ></input>
     </>
   );

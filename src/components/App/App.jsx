@@ -1,56 +1,41 @@
-import { Component } from 'react';
-import shortid from 'shortid';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import shortid from 'shortid';
 import s from './App.module.css';
 import Container from '../../components/Container';
 import Section from '../Section/Section';
 import ContactsForm from '../ContactsForm';
 import Filter from '../Filter';
 import ContactsList from '../ContactsList';
+import initialContacts from '../../initialContacts.json';
 
-class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+const App = () => {
+  const [contacts, setContacts] = useState(
+    JSON.parse(localStorage.getItem('contacts') ?? initialContacts),
+  );
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }
-
-  handleSubmitForm = ({ name, number }) => {
+  const handleSubmitForm = ({ name, number }) => {
     const newContact = {
       id: shortid.generate(),
       name,
       number,
     };
-    const includesContact = this.state.contacts.some(
-      contact => contact.name === newContact.name,
+    const includesContact = contacts.some(
+      ({ name }) => name === newContact.name,
     );
+
     !includesContact
-      ? this.setState(({ contacts }) => ({
-          contacts: [newContact, ...contacts],
-        }))
-      : this.notify(`${newContact.name} is already in your contacts`);
+      ? setContacts([newContact, ...contacts])
+      : notification(`${newContact.name} is already in your contacts`);
   };
 
-  notify = message => {
+  const notification = message => {
     toast.dark(message, {
       className: `${s.toast}`,
       progressClassName: `${s.progress}`,
@@ -58,52 +43,43 @@ class App extends Component {
     });
   };
 
-  handleChangeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
+  const handleChangeFilter = e => {
+    setFilter(e.target.value);
   };
 
-  handleDeleteButton = contactId => {
-    this.setState(({ contacts }) => ({
-      contacts: contacts.filter(contact => contact.id !== contactId),
-      filter: '',
-    }));
+  const handleDeleteButton = contactId => {
+    setContacts(contacts.filter(({ id }) => id !== contactId));
+    setFilter('');
   };
 
-  render() {
-    const { contacts, filter } = this.state;
-    const normalizedFilter = filter.toLowerCase();
-    const visibleContacts = contacts.filter(({ name }) =>
-      name.toLowerCase().includes(normalizedFilter),
-    );
+  const normalizedFilter = filter.toLowerCase();
+  const visibleContacts = contacts.filter(({ name }) =>
+    name.toLowerCase().includes(normalizedFilter),
+  );
 
-    return (
-      <Container>
+  return (
+    <Container>
+      <Section>
+        <h1>Phonebook</h1>
+        <ContactsForm
+          onSubmit={handleSubmitForm}
+          onSubmitError={notification}
+        />
+        <ToastContainer autoClose={3000} limit={1} style={{ width: '352px' }} />
+      </Section>
+
+      {contacts.length > 0 && (
         <Section>
-          <h1>Phonebook</h1>
-          <ContactsForm
-            onSubmit={this.handleSubmitForm}
-            onSubmitError={this.notify}
-          />
-          <ToastContainer
-            autoClose={3000}
-            limit={1}
-            style={{ width: '352px' }}
-          />
+          <h2>Contacts</h2>
+          <Filter value={filter} onFilter={handleChangeFilter} />
+          <ContactsList
+            contacts={visibleContacts}
+            onDelete={handleDeleteButton}
+          ></ContactsList>
         </Section>
-
-        {contacts.length > 0 && (
-          <Section>
-            <h2>Contacts</h2>
-            <Filter value={filter} onFilter={this.handleChangeFilter} />
-            <ContactsList
-              contacts={visibleContacts}
-              onDelete={this.handleDeleteButton}
-            ></ContactsList>
-          </Section>
-        )}
-      </Container>
-    );
-  }
-}
+      )}
+    </Container>
+  );
+};
 
 export default App;
