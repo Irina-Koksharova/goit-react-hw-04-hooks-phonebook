@@ -1,76 +1,77 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import s from './ContactsForm.module.css';
 
-class ContactsForm extends Component {
-  state = {
-    name: '',
-    number: '',
+function ContactsForm({ onSubmit, onSubmitError }) {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const handleChangeForm = e => {
+    const { value } = e.target;
+    switch (e.target.name) {
+      case 'name':
+        setName(value);
+        break;
+      case 'number':
+        setNumber(value);
+        break;
+      default:
+        return;
+    }
   };
 
-  handleChangeForm = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({ [name]: value });
-  };
-
-  handleSubmitForm = e => {
+  const handleSubmitForm = e => {
     e.preventDefault();
-    const { name, number } = this.state;
     if (name.trim() === '') {
-      this.props.onSubmitError('Contact name is missing');
+      onSubmitError('Contact name is missing');
       return;
     }
     if (number.trim() === '') {
-      this.props.onSubmitError('Contact number is missing');
+      onSubmitError('Contact number is missing');
       return;
     }
-    this.props.onSubmit(this.state);
-    this.resetForm();
+    onSubmit({ name, number });
+    resetForm();
   };
 
-  resetForm = () => {
-    this.setState({
-      name: '',
-      number: '',
-    });
+  const resetForm = () => {
+    setName('');
+    setNumber('');
   };
 
-  render() {
-    const { name, number } = this.state;
-    return (
-      <form className={s.form} onSubmit={this.handleSubmitForm}>
-        <label className={s.label} htmlFor="name">
-          Name
-        </label>
-        <input
-          className={s.input}
-          type="text"
-          name="name"
-          value={name}
-          placeholder="Enter the name"
-          autoComplete="off"
-          id="name"
-          onChange={this.handleChangeForm}
-        ></input>
-        <label className={s.label} htmlFor="number">
-          Number
-        </label>
-        <input
-          className={s.input}
-          type="tel"
-          name="number"
-          value={number}
-          placeholder="111-11-11"
-          autoComplete="off"
-          id="number"
-          onChange={this.handleChangeForm}
-        ></input>
-        <button className={s.button} type="submit">
-          Add contact
-        </button>
-      </form>
-    );
-  }
+  return (
+    <form className={s.form} onSubmit={handleSubmitForm}>
+      <label className={s.label} htmlFor="name">
+        Name
+      </label>
+      <input
+        className={s.input}
+        type="text"
+        name="name"
+        value={name}
+        placeholder="Enter the name"
+        autoComplete="off"
+        id="name"
+        onChange={handleChangeForm}
+      ></input>
+      <label className={s.label} htmlFor="number">
+        Number
+      </label>
+      <input
+        className={s.input}
+        type="tel"
+        name="number"
+        value={number}
+        placeholder="111-11-11"
+        autoComplete="off"
+        id="number"
+        onChange={handleChangeForm}
+      ></input>
+      <button className={s.button} type="submit">
+        Add contact
+      </button>
+    </form>
+  );
 }
 
 ContactsForm.propTypes = {
