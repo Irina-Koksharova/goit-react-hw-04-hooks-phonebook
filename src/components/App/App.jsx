@@ -8,7 +8,7 @@ import Section from '../Section/Section';
 import ContactsForm from '../ContactsForm';
 import Filter from '../Filter';
 import ContactsList from '../ContactsList';
-import initialContacts from '../../initialContacts.json';
+import initialContacts from './initialContacts.json';
 
 const App = () => {
   const [contacts, setContacts] = useState(() =>
